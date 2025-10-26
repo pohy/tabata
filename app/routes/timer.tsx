@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import type { Route } from "./+types/timer";
 import { useTimer, type PhaseChangeEvent } from "../hooks/useTimer";
 import { TimerDisplay } from "../components/TimerDisplay";
 import { TimerControls } from "../components/TimerControls";
 import { useAudio } from "../hooks/useAudio";
 import type { WorkoutPreset } from "../types/preset";
+import { Progress } from "../components/ui/progress";
+import { Button } from "../components/ui/button";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -76,18 +78,18 @@ export default function Timer() {
 
   const getBackgroundColor = () => {
     if (status.state === "idle" || status.state === "complete") {
-      return "bg-gray-800";
+      return "bg-muted";
     }
     if (status.state === "paused" || status.state === "resuming") {
-      return "bg-gray-600";
+      return "bg-muted/80";
     }
     switch (status.phase) {
       case "prep":
-        return "bg-gray-700";
+        return "bg-muted";
       case "work":
-        return "bg-cyan-600";
+        return "bg-chart-1";
       case "rest":
-        return "bg-orange-500";
+        return "bg-chart-5";
     }
   };
 
@@ -131,28 +133,20 @@ export default function Timer() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col ${getBackgroundColor()} text-white transition-colors duration-500`}
+      className={`min-h-screen flex flex-col ${getBackgroundColor()} text-foreground transition-colors duration-500`}
     >
       {/* Overall Progress Bar */}
-      <div className="w-full h-2 bg-black bg-opacity-20">
-        <div
-          className="h-full bg-white bg-opacity-60 transition-all duration-300"
-          style={{ width: `${overallProgress}%` }}
-        />
-      </div>
+      <Progress value={overallProgress} className="h-2 rounded-none" />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         {status.state === "complete" && (
           <div className="text-center space-y-8">
             <h1 className="text-6xl font-bold">Workout Complete!</h1>
-            <p className="text-2xl text-gray-300">Great job!</p>
-            <button
-              onClick={handleStop}
-              className="px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-2xl transition-colors"
-            >
-              Back to Home
-            </button>
+            <p className="text-2xl text-muted-foreground">Great job!</p>
+            <Button size="lg" asChild>
+              <Link to="/">Back to Home</Link>
+            </Button>
           </div>
         )}
 

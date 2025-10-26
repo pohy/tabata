@@ -142,8 +142,7 @@ export function deletePreset(id: string): boolean {
   const presets = loadPresets();
   const preset = presets.find((p) => p.id === id);
 
-  // Prevent deleting default presets
-  if (!preset || preset.isDefault) return false;
+  if (!preset) return false;
 
   const filtered = presets.filter((p) => p.id !== id);
   savePresets(filtered);

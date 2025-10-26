@@ -1,10 +1,19 @@
 import type { WorkoutPreset } from "../types/preset";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
 interface PresetCardProps {
   preset: WorkoutPreset;
   onStart: (preset: WorkoutPreset) => void;
   onEdit?: (preset: WorkoutPreset) => void;
-  onDelete?: (preset: WorkoutPreset) => void;
 }
 
 function formatDuration(seconds: number): string {
@@ -20,70 +29,62 @@ function calculateTotalDuration(preset: WorkoutPreset): string {
   return formatDuration(total);
 }
 
-export function PresetCard({ preset, onStart, onEdit, onDelete }: PresetCardProps) {
+export function PresetCard({ preset, onStart, onEdit }: PresetCardProps) {
   return (
-    <div className="bg-gray-800 rounded-lg p-6 space-y-4 hover:bg-gray-750 transition-colors">
-      <div className="space-y-2">
-        <h3 className="text-2xl font-bold text-white">{preset.name}</h3>
+    <Card className="hover:bg-accent/50 transition-colors">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">{preset.name}</CardTitle>
         {preset.description && (
-          <p className="text-gray-400 text-sm">{preset.description}</p>
+          <CardDescription>{preset.description}</CardDescription>
         )}
-      </div>
+      </CardHeader>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <div className="bg-gray-900 rounded p-3">
-          <div className="text-gray-400">Work</div>
-          <div className="text-xl font-semibold text-cyan-400">
-            {preset.workIntervalS}s
+      <CardContent className="pb-3">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="space-y-1">
+            <Badge variant="secondary" className="text-xs">
+              Work
+            </Badge>
+            <div className="text-lg font-semibold">{preset.workIntervalS}s</div>
+          </div>
+          <div className="space-y-1">
+            <Badge variant="secondary" className="text-xs">
+              Rest
+            </Badge>
+            <div className="text-lg font-semibold">{preset.restIntervalS}s</div>
+          </div>
+          <div className="space-y-1">
+            <Badge variant="secondary" className="text-xs">
+              Intervals
+            </Badge>
+            <div className="text-lg font-semibold">{preset.intervalCount}</div>
+          </div>
+          <div className="space-y-1">
+            <Badge variant="secondary" className="text-xs">
+              Total
+            </Badge>
+            <div className="text-lg font-semibold">
+              {calculateTotalDuration(preset)}
+            </div>
           </div>
         </div>
-        <div className="bg-gray-900 rounded p-3">
-          <div className="text-gray-400">Rest</div>
-          <div className="text-xl font-semibold text-orange-400">
-            {preset.restIntervalS}s
-          </div>
-        </div>
-        <div className="bg-gray-900 rounded p-3">
-          <div className="text-gray-400">Intervals</div>
-          <div className="text-xl font-semibold text-white">
-            {preset.intervalCount}
-          </div>
-        </div>
-        <div className="bg-gray-900 rounded p-3">
-          <div className="text-gray-400">Total</div>
-          <div className="text-xl font-semibold text-white">
-            {calculateTotalDuration(preset)}
-          </div>
-        </div>
-      </div>
+      </CardContent>
 
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={() => onStart(preset)}
-          className="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-colors"
-        >
-          Start
-        </button>
+      <CardFooter className="gap-2 pt-3">
         {onEdit && (
-          <button
+          <Button
             onClick={() => onEdit(preset)}
-            className="px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+            variant="outline"
+            size="sm"
             title="Edit preset"
           >
             Edit
-          </button>
+          </Button>
         )}
-        {!preset.isDefault && onDelete && (
-          <button
-            onClick={() => onDelete(preset)}
-            className="px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors"
-            title="Delete preset"
-          >
-            Delete
-          </button>
-        )}
-      </div>
-    </div>
+        <Button onClick={() => onStart(preset)} className="flex-1" size="sm">
+          Start
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
-

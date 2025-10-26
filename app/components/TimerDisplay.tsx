@@ -38,11 +38,11 @@ export function TimerDisplay({ status, config }: TimerDisplayProps) {
   const getPhaseColor = () => {
     switch (status.phase) {
       case "prep":
-        return "#9ca3af"; // gray
+        return "hsl(var(--muted))";
       case "work":
-        return "#06b6d4"; // cyan
+        return "hsl(var(--chart-1))";
       case "rest":
-        return "#f97316"; // orange
+        return "hsl(var(--chart-5))";
     }
   };
 

@@ -10,6 +10,7 @@ import {
   FieldLabel,
   FieldSet,
 } from "./ui/field";
+import { Card, CardContent, CardDescription, CardHeader } from "./ui/card";
 
 interface PresetFormData {
   name: string;
@@ -229,15 +230,19 @@ export function PresetForm({ initialData, onSubmit, onCancel }: PresetFormProps)
           </Field>
 
           {/* Total Duration Display */}
-          <div className="rounded-lg bg-blue-900/30 border border-blue-800 p-6 text-center">
-            <p className="text-sm text-gray-400 mb-2">Total Workout Duration</p>
-            <p className="text-4xl font-bold text-blue-400">
-              {minutes}:{seconds.toString().padStart(2, "0")}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Including {prepTimeS}s preparation time
-            </p>
-          </div>
+          <Card>
+            <CardHeader className="text-center pb-3">
+              <CardDescription>Total Workout Duration</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-4xl font-bold">
+                {minutes}:{seconds.toString().padStart(2, "0")}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Including {prepTimeS}s preparation time
+              </p>
+            </CardContent>
+          </Card>
         </FieldGroup>
       </FieldSet>
 

@@ -118,18 +118,23 @@
 
 **Deliverables**:
 
-- Zero pad workout duration in the workout preset card
-- Use links that look like buttons instead of buttons for navigation around the app
-- Revise the app and use shadcn components
-- Make the workout preset cards more compact
-- Smooth transitions between timer states
-- Prevent screen sleep during active timer
-- Touch target optimization (44x44px minimum)
-- Workout complete screen with summary stats
-- PWA configuration for offline-first functionality
-- Performance optimizations (reduce animations on low battery)
+- [x] Zero pad workout duration in the workout preset card ✓
+- [x] Revise the app to use shadcn components ✓
+- Added Card, AlertDialog, Progress, Badge components
+- Replaced custom buttons with shadcn Button variants
+- Updated all color classes to use theme colors (bg-chart-1, bg-chart-5, bg-muted, text-muted-foreground)
+- Made preset cards more compact with shadcn Card structure
+- Simplified delete functionality (now only available in edit view)
+- [ ] Use links that look like buttons for navigation (partially done - timer completion uses Button asChild)
+- [ ] Use the main countdown timer for "resuming" countdown instead of the current "in-text" solution
+- [ ] Add an option (button) to skip an interval
+- [ ] Smooth transitions between timer states
+- [ ] Prevent screen sleep during active timer
+- [ ] Touch target optimization (44x44px minimum)
+- [ ] Workout complete screen with summary stats
+- [ ] PWA configuration for offline-first functionality
 
-**Key Files**: `app/routes/complete.tsx`, `public/manifest.json`, `app/utils/wake-lock.ts`
+**Key Files**: `app/components/PresetCard.tsx`, `app/components/TimerControls.tsx`, `app/routes/home.tsx`, `app/routes/timer.tsx`, `app/components/TimerDisplay.tsx`, `app/routes/config.tsx`, `app/components/PresetForm.tsx`
 
 ---
 
