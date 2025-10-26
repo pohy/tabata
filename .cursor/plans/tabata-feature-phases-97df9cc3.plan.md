@@ -118,8 +118,11 @@
 
 **Deliverables**:
 
+- Zero pad workout duration in the workout preset card
+- Use links that look like buttons instead of buttons for navigation around the app
+- Revise the app and use shadcn components
+- Make the workout preset cards more compact
 - Smooth transitions between timer states
-- Portrait/landscape mode optimization
 - Prevent screen sleep during active timer
 - Touch target optimization (44x44px minimum)
 - Workout complete screen with summary stats
@@ -145,6 +148,6 @@ Each phase builds on the previous one. After completing each phase:
 - [x] Phase 2: Timer Display & Progress Visualization ✓
 - [x] Phase 3: Controls & Audio Feedback ✓
 - [x] Phase 4: Preset Data Structure & Storage ✓
-- [ ] Phase 5: Preset List & Home Screen
+- [x] Phase 5: Preset List & Home Screen ✓
 - [ ] Phase 6: Preset Configuration Interface
 - [ ] Phase 7: Polish & Mobile Optimization

@@ -1,8 +1,11 @@
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 import type { Route } from "./+types/timer";
 import { useTimer, type PhaseChangeEvent } from "../hooks/useTimer";
 import { TimerDisplay } from "../components/TimerDisplay";
 import { TimerControls } from "../components/TimerControls";
 import { useAudio } from "../hooks/useAudio";
+import type { WorkoutPreset } from "../types/preset";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,13 +15,27 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Timer() {
-  // TODO: Phase 5 - Accept preset from route params/navigation state
-  // Hardcoded Classic Tabata: 20s work / 10s rest / 8 intervals / 10s prep
-  const config = {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get preset from navigation state, fallback to Classic Tabata
+  const preset: WorkoutPreset = (location.state as any)?.preset || {
+    id: "default-classic",
+    name: "Classic Tabata",
+    description: "Traditional high-intensity interval training",
     workIntervalS: 20,
     restIntervalS: 10,
     intervalCount: 8,
     prepTimeS: 10,
+    createdAt: Date.now(),
+    isDefault: true,
+  };
+
+  const config = {
+    workIntervalS: preset.workIntervalS,
+    restIntervalS: preset.restIntervalS,
+    intervalCount: preset.intervalCount,
+    prepTimeS: preset.prepTimeS,
   };
 
   const audio = useAudio();
@@ -46,6 +63,16 @@ export default function Timer() {
   const { status, start, pause, resume, stop } = useTimer(config, {
     onPhaseChange: handlePhaseChange,
   });
+
+  // Auto-start the timer when component mounts
+  useEffect(() => {
+    start();
+  }, []);
+
+  const handleStop = () => {
+    stop();
+    navigate("/");
+  };
 
   const getBackgroundColor = () => {
     if (status.state === "idle" || status.state === "complete") {
@@ -116,35 +143,20 @@ export default function Timer() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
-        {status.state === "idle" && (
-          <div className="text-center space-y-8">
-            <h1 className="text-4xl font-bold">Classic Tabata</h1>
-            <p className="text-xl text-gray-300">
-              20s work / 10s rest / 8 intervals
-            </p>
-            <button
-              onClick={start}
-              className="px-12 py-4 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-2xl transition-colors"
-            >
-              Start Workout
-            </button>
-          </div>
-        )}
-
         {status.state === "complete" && (
           <div className="text-center space-y-8">
             <h1 className="text-6xl font-bold">Workout Complete!</h1>
             <p className="text-2xl text-gray-300">Great job!</p>
             <button
-              onClick={stop}
+              onClick={handleStop}
               className="px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-2xl transition-colors"
             >
-              Finish
+              Back to Home
             </button>
           </div>
         )}
 
-        {status.state !== "idle" && status.state !== "complete" && (
+        {status.state !== "complete" && (
           <>
             <TimerDisplay status={status} config={config} />
 
@@ -153,7 +165,7 @@ export default function Timer() {
               timerState={status.state}
               onPause={pause}
               onResume={resume}
-              onStop={stop}
+              onStop={handleStop}
             />
           </>
         )}

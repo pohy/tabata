@@ -58,7 +58,7 @@ export function getDefaultPresets(): WorkoutPreset[] {
 
 export function initializeStorage(): void {
   if (typeof window === "undefined") return;
-  
+
   const existing = localStorage.getItem(STORAGE_KEY);
   if (!existing) {
     const defaults = getDefaultPresets();
@@ -68,7 +68,7 @@ export function initializeStorage(): void {
 
 export function loadPresets(): WorkoutPreset[] {
   if (typeof window === "undefined") return getDefaultPresets();
-  
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
@@ -84,7 +84,7 @@ export function loadPresets(): WorkoutPreset[] {
 
 export function savePresets(presets: WorkoutPreset[]): void {
   if (typeof window === "undefined") return;
-  
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
   } catch (error) {
@@ -106,11 +106,11 @@ export function createPreset(
     createdAt: Date.now(),
     isDefault: false,
   };
-  
+
   const presets = loadPresets();
   presets.push(newPreset);
   savePresets(presets);
-  
+
   return newPreset;
 }
 
@@ -120,14 +120,14 @@ export function updatePreset(
 ): WorkoutPreset | null {
   const presets = loadPresets();
   const index = presets.findIndex((p) => p.id === id);
-  
+
   if (index === -1) return null;
-  
+
   presets[index] = {
     ...presets[index],
     ...changes,
   };
-  
+
   savePresets(presets);
   return presets[index];
 }
@@ -135,13 +135,12 @@ export function updatePreset(
 export function deletePreset(id: string): boolean {
   const presets = loadPresets();
   const preset = presets.find((p) => p.id === id);
-  
+
   // Prevent deleting default presets
   if (!preset || preset.isDefault) return false;
-  
+
   const filtered = presets.filter((p) => p.id !== id);
   savePresets(filtered);
-  
+
   return true;
 }
-
