@@ -12,6 +12,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Timer() {
+  // TODO: Phase 5 - Accept preset from route params/navigation state
   // Hardcoded Classic Tabata: 20s work / 10s rest / 8 intervals / 10s prep
   const config = {
     workIntervalS: 20,
