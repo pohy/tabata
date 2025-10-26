@@ -1,4 +1,5 @@
 <!-- 97df9cc3-b4a9-4321-acf5-c03b1c86aca5 282fc180-22a2-4847-a734-49a089a26be6 -->
+
 # Feature-by-Feature Implementation Plan
 
 **Strategy**: Build timer core first, then add preset management
@@ -140,10 +141,10 @@ Each phase builds on the previous one. After completing each phase:
 
 ### To-dos
 
-- [ ] Phase 1: Foundation & Data Structure
-- [ ] Phase 2: Preset List & Home Screen
-- [ ] Phase 3: Preset Configuration Interface
-- [ ] Phase 4: Core Timer Logic
-- [ ] Phase 5: Timer Display & Progress Visualization
-- [ ] Phase 6: Controls & Audio Feedback
+- [x] Phase 1: Core Timer Logic ✓
+- [x] Phase 2: Timer Display & Progress Visualization ✓
+- [ ] Phase 3: Controls & Audio Feedback
+- [ ] Phase 4: Preset Data Structure & Storage
+- [ ] Phase 5: Preset List & Home Screen
+- [ ] Phase 6: Preset Configuration Interface
 - [ ] Phase 7: Polish & Mobile Optimization
