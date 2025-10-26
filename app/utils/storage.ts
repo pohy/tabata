@@ -76,7 +76,13 @@ export function loadPresets(): WorkoutPreset[] {
       savePresets(defaults);
       return defaults;
     }
-    return JSON.parse(stored) as WorkoutPreset[];
+    const loadedPresets = JSON.parse(stored) as WorkoutPreset[];
+    return loadedPresets.sort((a, b) => {
+      return (
+        a.name.localeCompare(b.name) +
+        ((a.isDefault ? 1 : -1) - (b.isDefault ? 1 : -1))
+      );
+    });
   } catch {
     return getDefaultPresets();
   }

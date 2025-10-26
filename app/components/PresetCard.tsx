@@ -3,6 +3,7 @@ import type { WorkoutPreset } from "../types/preset";
 interface PresetCardProps {
   preset: WorkoutPreset;
   onStart: (preset: WorkoutPreset) => void;
+  onEdit?: (preset: WorkoutPreset) => void;
   onDelete?: (preset: WorkoutPreset) => void;
 }
 
@@ -19,7 +20,7 @@ function calculateTotalDuration(preset: WorkoutPreset): string {
   return formatDuration(total);
 }
 
-export function PresetCard({ preset, onStart, onDelete }: PresetCardProps) {
+export function PresetCard({ preset, onStart, onEdit, onDelete }: PresetCardProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-6 space-y-4 hover:bg-gray-750 transition-colors">
       <div className="space-y-2">
@@ -63,6 +64,15 @@ export function PresetCard({ preset, onStart, onDelete }: PresetCardProps) {
         >
           Start
         </button>
+        {onEdit && (
+          <button
+            onClick={() => onEdit(preset)}
+            className="px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+            title="Edit preset"
+          >
+            Edit
+          </button>
+        )}
         {!preset.isDefault && onDelete && (
           <button
             onClick={() => onDelete(preset)}

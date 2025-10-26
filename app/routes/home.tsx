@@ -25,6 +25,10 @@ export default function Home() {
     navigate("/timer", { state: { preset } });
   };
 
+  const handleEdit = (preset: WorkoutPreset) => {
+    navigate(`/config/${preset.id}`);
+  };
+
   const handleDelete = (preset: WorkoutPreset) => {
     if (confirm(`Delete "${preset.name}"?`)) {
       if (deletePreset(preset.id)) {
@@ -34,8 +38,7 @@ export default function Home() {
   };
 
   const handleCreateNew = () => {
-    // TODO: Phase 6 - Navigate to config screen
-    alert("Preset configuration coming in Phase 6");
+    navigate("/config");
   };
 
   return (
@@ -54,6 +57,7 @@ export default function Home() {
               key={preset.id}
               preset={preset}
               onStart={handleStart}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))}
@@ -71,4 +75,3 @@ export default function Home() {
     </div>
   );
 }
-
