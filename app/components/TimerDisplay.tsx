@@ -8,8 +8,8 @@ interface TimerDisplayProps {
 
 export function TimerDisplay({ status, config }: TimerDisplayProps) {
   const getPhaseLabel = () => {
-    if (status.state === "resuming" && status.resumeCountdown) {
-      return `Resuming in ${status.resumeCountdown}`;
+    if (status.state === "resuming") {
+      return "RESUMING";
     }
     if (status.state === "paused") {
       return "PAUSED";
@@ -25,6 +25,9 @@ export function TimerDisplay({ status, config }: TimerDisplayProps) {
   };
 
   const getPhaseDuration = () => {
+    if (status.state === "resuming") {
+      return 3; // Resume countdown duration
+    }
     switch (status.phase) {
       case "prep":
         return config.prepTimeS;
@@ -46,13 +49,23 @@ export function TimerDisplay({ status, config }: TimerDisplayProps) {
     }
   };
 
+  const getDisplayTime = () => {
+    if (status.state === "resuming" && status.resumeCountdown) {
+      return status.resumeCountdown;
+    }
+    return status.timeRemaining;
+  };
+
   const phaseDuration = getPhaseDuration();
-  const progress = 1 - status.timeRemaining / phaseDuration;
+  const displayTime = getDisplayTime();
+  const progress = status.state === "resuming" && status.resumeCountdown
+    ? 1 - status.resumeCountdown / 3
+    : 1 - status.timeRemaining / phaseDuration;
 
   return (
     <div className="flex flex-col items-center justify-center space-y-8">
       {/* Phase Label */}
-      <div className="text-5xl font-bold tracking-wide">
+      <div className="text-5xl font-bold tracking-wide transition-all duration-300 animate-in fade-in">
         {getPhaseLabel()}
       </div>
 
@@ -66,14 +79,14 @@ export function TimerDisplay({ status, config }: TimerDisplayProps) {
         />
         {/* Timer in center */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-9xl font-bold tabular-nums">
-            {status.timeRemaining}
+          <div className="text-9xl font-bold tabular-nums transition-all duration-300">
+            {displayTime}
           </div>
         </div>
       </div>
 
       {/* Interval Counter */}
-      <div className="text-3xl font-semibold">
+      <div className="text-3xl font-semibold transition-all duration-200">
         {status.currentInterval} of {status.totalIntervals}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { WorkoutPreset } from "../types/preset";
 import {
   Card,
@@ -13,7 +14,7 @@ import { Badge } from "./ui/badge";
 interface PresetCardProps {
   preset: WorkoutPreset;
   onStart: (preset: WorkoutPreset) => void;
-  onEdit?: (preset: WorkoutPreset) => void;
+  onEdit?: (preset: WorkoutPreset) => void; // kept for compatibility, but using Link now
 }
 
 function formatDuration(seconds: number): string {
@@ -71,16 +72,11 @@ export function PresetCard({ preset, onStart, onEdit }: PresetCardProps) {
       </CardContent>
 
       <CardFooter className="gap-2 pt-3">
-        {onEdit && (
-          <Button
-            onClick={() => onEdit(preset)}
-            variant="outline"
-            size="sm"
-            title="Edit preset"
-          >
+        <Button asChild variant="outline" size="sm" title="Edit preset">
+          <Link to={`/config/${preset.id}`} viewTransition>
             Edit
-          </Button>
-        )}
+          </Link>
+        </Button>
         <Button onClick={() => onStart(preset)} className="flex-1" size="sm">
           Start
         </Button>

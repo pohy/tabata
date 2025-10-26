@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
@@ -24,10 +25,9 @@ interface PresetFormData {
 interface PresetFormProps {
   initialData?: PresetFormData;
   onSubmit: (data: PresetFormData) => void;
-  onCancel: () => void;
 }
 
-export function PresetForm({ initialData, onSubmit, onCancel }: PresetFormProps) {
+export function PresetForm({ initialData, onSubmit }: PresetFormProps) {
   const [name, setName] = useState(initialData?.name || "");
   const [workIntervalS, setWorkIntervalS] = useState(initialData?.workIntervalS || 20);
   const [restIntervalS, setRestIntervalS] = useState(initialData?.restIntervalS || 10);
@@ -248,8 +248,8 @@ export function PresetForm({ initialData, onSubmit, onCancel }: PresetFormProps)
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-end">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+        <Button asChild type="button" variant="outline">
+          <Link to="/" viewTransition>Cancel</Link>
         </Button>
         <Button type="submit">
           Save Preset

@@ -2,28 +2,32 @@ interface CircularProgressProps {
   progress: number; // 0 to 1
   size?: number;
   strokeWidth?: number;
-  color?: string;
+  className?: string;
 }
 
 export function CircularProgress({
   progress,
   size = 200,
   strokeWidth = 8,
-  color = "#3b82f6",
+  className = "",
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - progress);
 
   return (
-    <svg width={size} height={size} className="transform -rotate-90">
+    <svg
+      width={size}
+      height={size}
+      className={`transform -rotate-90 ${className}`}
+    >
       {/* Background circle */}
       <circle
         cx={size / 2}
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="rgba(255, 255, 255, 0.1)"
+        className="stroke-muted"
         strokeWidth={strokeWidth}
       />
       {/* Progress circle */}
@@ -32,7 +36,7 @@ export function CircularProgress({
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke={color}
+        className="stroke-primary"
         strokeWidth={strokeWidth}
         strokeDasharray={circumference}
         strokeDashoffset={offset}
@@ -44,4 +48,3 @@ export function CircularProgress({
     </svg>
   );
 }
-

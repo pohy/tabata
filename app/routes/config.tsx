@@ -55,10 +55,6 @@ export default function Config() {
     navigate("/");
   };
 
-  const handleCancel = () => {
-    navigate("/");
-  };
-
   const handleDelete = () => {
     if (!id || !preset) return;
 
@@ -91,11 +87,7 @@ export default function Config() {
           </p>
         </header>
 
-        <PresetForm
-          initialData={preset || undefined}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
+        <PresetForm initialData={preset || undefined} onSubmit={handleSubmit} />
 
         {id && preset && (
           <div className="border-t pt-6">

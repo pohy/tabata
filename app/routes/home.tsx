@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import type { WorkoutPreset } from "../types/preset";
 import { loadPresets, initializeStorage, deletePreset } from "../utils/storage";
@@ -30,10 +30,6 @@ export default function Home() {
     navigate(`/config/${preset.id}`);
   };
 
-  const handleCreateNew = () => {
-    navigate("/config");
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-6 space-y-8">
@@ -56,8 +52,10 @@ export default function Home() {
         </div>
 
         <div className="text-center">
-          <Button onClick={handleCreateNew} size="lg">
-            + Create New Preset
+          <Button asChild size="lg">
+            <Link to="/config" viewTransition>
+              + Create New Preset
+            </Link>
           </Button>
         </div>
       </div>

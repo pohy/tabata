@@ -4,7 +4,9 @@ import type { Route } from "./+types/timer";
 import { useTimer, type PhaseChangeEvent } from "../hooks/useTimer";
 import { TimerDisplay } from "../components/TimerDisplay";
 import { TimerControls } from "../components/TimerControls";
+import { WorkoutSummary } from "../components/WorkoutSummary";
 import { useAudio } from "../hooks/useAudio";
+import { useWakeLock } from "../hooks/useWakeLock";
 import type { WorkoutPreset } from "../types/preset";
 import { Progress } from "../components/ui/progress";
 import { Button } from "../components/ui/button";
@@ -62,9 +64,17 @@ export default function Timer() {
     }
   };
 
-  const { status, start, pause, resume, stop } = useTimer(config, {
+  const { status, start, pause, resume, stop, skip } = useTimer(config, {
     onPhaseChange: handlePhaseChange,
   });
+
+  // Enable wake lock during active workout
+  const isActive =
+    status.state === "working" ||
+    status.state === "resting" ||
+    status.state === "preparing" ||
+    status.state === "resuming";
+  useWakeLock(isActive);
 
   // Auto-start the timer when component mounts
   useEffect(() => {
@@ -74,6 +84,14 @@ export default function Timer() {
   const handleStop = () => {
     stop();
     navigate("/");
+  };
+
+  const handleRestart = () => {
+    stop();
+    // Small delay to reset state
+    setTimeout(() => {
+      start();
+    }, 100);
   };
 
   const getBackgroundColor = () => {
@@ -141,13 +159,7 @@ export default function Timer() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         {status.state === "complete" && (
-          <div className="text-center space-y-8">
-            <h1 className="text-6xl font-bold">Workout Complete!</h1>
-            <p className="text-2xl text-muted-foreground">Great job!</p>
-            <Button size="lg" asChild>
-              <Link to="/">Back to Home</Link>
-            </Button>
-          </div>
+          <WorkoutSummary preset={preset} onRestart={handleRestart} />
         )}
 
         {status.state !== "complete" && (
@@ -160,6 +172,7 @@ export default function Timer() {
               onPause={pause}
               onResume={resume}
               onStop={handleStop}
+              onSkip={skip}
             />
           </>
         )}

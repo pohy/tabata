@@ -125,6 +125,47 @@ export function useTimer(config: TimerConfig, options?: UseTimerOptions) {
     pausedStateRef.current = null;
   }, [config.intervalCount, config.prepTimeS]);
 
+  const skip = useCallback(() => {
+    if (status.state === "working") {
+      // Skip to rest
+      if (status.currentInterval >= config.intervalCount) {
+        // Last interval, complete workout
+        options?.onPhaseChange?.("complete");
+        setStatus((prev) => ({
+          ...prev,
+          state: "complete",
+          timeRemaining: 0,
+        }));
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+      } else {
+        // Skip to rest
+        options?.onPhaseChange?.("work-to-rest");
+        setStatus((prev) => ({
+          ...prev,
+          state: "resting",
+          phase: "rest",
+          timeRemaining: config.restIntervalS,
+        }));
+        phaseStartTimeRef.current = performance.now();
+        phaseDurationRef.current = config.restIntervalS * 1000;
+      }
+    } else if (status.state === "resting") {
+      // Skip to next work interval
+      options?.onPhaseChange?.("rest-to-work");
+      setStatus((prev) => ({
+        ...prev,
+        state: "working",
+        phase: "work",
+        currentInterval: prev.currentInterval + 1,
+        timeRemaining: config.workIntervalS,
+      }));
+      phaseStartTimeRef.current = performance.now();
+      phaseDurationRef.current = config.workIntervalS * 1000;
+    }
+  }, [status.state, status.currentInterval, config, options]);
+
   useEffect(() => {
     if (
       status.state === "paused" ||
@@ -241,5 +282,6 @@ export function useTimer(config: TimerConfig, options?: UseTimerOptions) {
     pause,
     resume,
     stop,
+    skip,
   };
 }

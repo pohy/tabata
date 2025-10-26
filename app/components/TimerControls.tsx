@@ -17,6 +17,7 @@ interface TimerControlsProps {
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
+  onSkip: () => void;
 }
 
 export function TimerControls({
@@ -24,15 +25,23 @@ export function TimerControls({
   onPause,
   onResume,
   onStop,
+  onSkip,
 }: TimerControlsProps) {
   return (
     <div className="flex gap-4 mt-12">
       {(timerState === "working" ||
         timerState === "resting" ||
         timerState === "preparing") && (
-        <Button onClick={onPause} variant="secondary" size="lg">
-          Pause
-        </Button>
+        <>
+          <Button onClick={onPause} variant="secondary" size="lg">
+            Pause
+          </Button>
+          {(timerState === "working" || timerState === "resting") && (
+            <Button onClick={onSkip} variant="outline" size="lg">
+              Skip
+            </Button>
+          )}
+        </>
       )}
 
       {timerState === "paused" && (
