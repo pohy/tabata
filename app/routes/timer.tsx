@@ -1,6 +1,8 @@
 import type { Route } from "./+types/timer";
-import { useTimer } from "../hooks/useTimer";
+import { useTimer, type PhaseChangeEvent } from "../hooks/useTimer";
 import { TimerDisplay } from "../components/TimerDisplay";
+import { TimerControls } from "../components/TimerControls";
+import { useAudio } from "../hooks/useAudio";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,11 +20,38 @@ export default function Timer() {
     prepTimeS: 10,
   };
 
-  const { status, start, pause, resume, stop } = useTimer(config);
+  const audio = useAudio();
+
+  const handlePhaseChange = (event: PhaseChangeEvent) => {
+    switch (event) {
+      case "prep-countdown":
+        audio.playPrepareForWork();
+        break;
+      case "prep-to-work":
+        audio.playWork();
+        break;
+      case "work-to-rest":
+        audio.playPrepareForRest();
+        break;
+      case "rest-to-work":
+        audio.playPrepareForWork();
+        break;
+      case "complete":
+        audio.playDone();
+        break;
+    }
+  };
+
+  const { status, start, pause, resume, stop } = useTimer(config, {
+    onPhaseChange: handlePhaseChange,
+  });
 
   const getBackgroundColor = () => {
     if (status.state === "idle" || status.state === "complete") {
       return "bg-gray-800";
+    }
+    if (status.state === "paused" || status.state === "resuming") {
+      return "bg-gray-600";
     }
     switch (status.phase) {
       case "prep":
@@ -64,7 +93,8 @@ export default function Timer() {
 
     const totalPhases = status.totalIntervals * 2;
     const currentPhaseContribution = phaseProgress / totalPhases;
-    const overallProgress = (completedPhases / totalPhases + currentPhaseContribution) * 100;
+    const overallProgress =
+      (completedPhases / totalPhases + currentPhaseContribution) * 100;
 
     return Math.min(100, Math.max(0, overallProgress));
   };
@@ -118,38 +148,15 @@ export default function Timer() {
             <TimerDisplay status={status} config={config} />
 
             {/* Controls */}
-            <div className="flex gap-4 mt-12">
-              {(status.state === "working" ||
-                status.state === "resting" ||
-                status.state === "preparing") && (
-                <button
-                  onClick={pause}
-                  className="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-semibold text-lg transition-colors"
-                >
-                  Pause
-                </button>
-              )}
-
-              {status.state === "paused" && (
-                <button
-                  onClick={resume}
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-lg transition-colors"
-                >
-                  Resume
-                </button>
-              )}
-
-              <button
-                onClick={stop}
-                className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-lg transition-colors"
-              >
-                Stop
-              </button>
-            </div>
+            <TimerControls
+              timerState={status.state}
+              onPause={pause}
+              onResume={resume}
+              onStop={stop}
+            />
           </>
         )}
       </div>
     </div>
   );
 }
-

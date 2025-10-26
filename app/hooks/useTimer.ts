@@ -6,7 +6,18 @@ import type {
   TimerPhase,
 } from "../types/timer";
 
-export function useTimer(config: TimerConfig) {
+export type PhaseChangeEvent =
+  | "prep-countdown"
+  | "prep-to-work"
+  | "work-to-rest"
+  | "rest-to-work"
+  | "complete";
+
+interface UseTimerOptions {
+  onPhaseChange?: (event: PhaseChangeEvent) => void;
+}
+
+export function useTimer(config: TimerConfig, options?: UseTimerOptions) {
   const [status, setStatus] = useState<TimerStatus>({
     state: "idle",
     phase: "prep",
@@ -20,6 +31,9 @@ export function useTimer(config: TimerConfig) {
   const animationFrameRef = useRef<number | null>(null);
   const phaseStartTimeRef = useRef<number>(0);
   const phaseDurationRef = useRef<number>(0);
+  const resumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pausedStateRef = useRef<TimerState | null>(null);
+  const lastTimeRemainingRef = useRef<number>(0);
 
   const start = useCallback(() => {
     if (status.state === "idle") {
@@ -37,30 +51,67 @@ export function useTimer(config: TimerConfig) {
   }, [status.state, config.prepTimeS]);
 
   const pause = useCallback(() => {
-    if (status.state === "working" || status.state === "resting") {
-      setStatus((prev) => ({ ...prev, state: "paused" }));
+    if (
+      status.state === "working" ||
+      status.state === "resting" ||
+      status.state === "preparing"
+    ) {
+      pausedStateRef.current = status.state;
       pausedTimeRef.current = status.timeRemaining;
+      lastTimeRemainingRef.current = status.timeRemaining;
+      setStatus((prev) => ({ ...prev, state: "paused" }));
     }
   }, [status.state, status.timeRemaining]);
 
   const resume = useCallback(() => {
     if (status.state === "paused") {
+      // Start 3-second resuming countdown
+      let countdown = 3;
       setStatus((prev) => ({
         ...prev,
-        state: prev.phase === "work" ? "working" : "resting",
+        state: "resuming",
+        resumeCountdown: countdown,
       }));
-      if (startTimeRef.current !== null) {
-        // Adjust start time to account for pause
-        const pauseDuration = pausedTimeRef.current * 1000;
-        phaseStartTimeRef.current =
-          performance.now() - (phaseDurationRef.current - pauseDuration);
-      }
+
+      resumeIntervalRef.current = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          setStatus((prev) => ({
+            ...prev,
+            resumeCountdown: countdown,
+          }));
+        } else {
+          // Resume to previous state
+          if (resumeIntervalRef.current) {
+            clearInterval(resumeIntervalRef.current);
+            resumeIntervalRef.current = null;
+          }
+
+          const targetState = pausedStateRef.current || "working";
+          setStatus((prev) => ({
+            ...prev,
+            state: targetState,
+            resumeCountdown: undefined,
+          }));
+
+          // Adjust timing to account for pause
+          if (startTimeRef.current !== null) {
+            const pauseDuration = pausedTimeRef.current * 1000;
+            phaseStartTimeRef.current =
+              performance.now() - (phaseDurationRef.current - pauseDuration);
+          }
+        }
+      }, 1000);
     }
-  }, [status.state, status.phase]);
+  }, [status.state]);
 
   const stop = useCallback(() => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
+    }
+    if (resumeIntervalRef.current) {
+      clearInterval(resumeIntervalRef.current);
+      resumeIntervalRef.current = null;
     }
     setStatus({
       state: "idle",
@@ -71,13 +122,15 @@ export function useTimer(config: TimerConfig) {
     });
     startTimeRef.current = null;
     pausedTimeRef.current = 0;
+    pausedStateRef.current = null;
   }, [config.intervalCount, config.prepTimeS]);
 
   useEffect(() => {
     if (
       status.state === "paused" ||
       status.state === "idle" ||
-      status.state === "complete"
+      status.state === "complete" ||
+      status.state === "resuming"
     ) {
       return;
     }
@@ -95,6 +148,16 @@ export function useTimer(config: TimerConfig) {
       );
       const timeRemaining = Math.ceil(phaseRemaining / 1000);
 
+      // Trigger prep countdown event when reaching 3 seconds
+      if (
+        status.state === "preparing" &&
+        timeRemaining === 3 &&
+        lastTimeRemainingRef.current !== 3
+      ) {
+        options?.onPhaseChange?.("prep-countdown");
+      }
+      lastTimeRemainingRef.current = timeRemaining;
+
       setStatus((prev) => ({
         ...prev,
         timeRemaining,
@@ -105,6 +168,7 @@ export function useTimer(config: TimerConfig) {
         // Transition to next phase
         if (status.state === "preparing") {
           // Move to first work interval
+          options?.onPhaseChange?.("prep-to-work");
           setStatus((prev) => ({
             ...prev,
             state: "working",
@@ -118,6 +182,7 @@ export function useTimer(config: TimerConfig) {
           // Move to rest (unless it's the last interval)
           if (status.currentInterval >= config.intervalCount) {
             // Workout complete
+            options?.onPhaseChange?.("complete");
             setStatus((prev) => ({
               ...prev,
               state: "complete",
@@ -129,6 +194,7 @@ export function useTimer(config: TimerConfig) {
             return;
           } else {
             // Move to rest
+            options?.onPhaseChange?.("work-to-rest");
             setStatus((prev) => ({
               ...prev,
               state: "resting",
@@ -140,6 +206,7 @@ export function useTimer(config: TimerConfig) {
           }
         } else if (status.state === "resting") {
           // Move to next work interval
+          options?.onPhaseChange?.("rest-to-work");
           setStatus((prev) => ({
             ...prev,
             state: "working",
@@ -161,8 +228,12 @@ export function useTimer(config: TimerConfig) {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      if (resumeIntervalRef.current) {
+        clearInterval(resumeIntervalRef.current);
+        resumeIntervalRef.current = null;
+      }
     };
-  }, [status.state, status.currentInterval, config]);
+  }, [status.state, status.currentInterval, config, options]);
 
   return {
     status,

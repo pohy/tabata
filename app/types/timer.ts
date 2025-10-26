@@ -4,6 +4,7 @@ export type TimerState =
   | "working"
   | "resting"
   | "paused"
+  | "resuming"
   | "complete";
 
 export type TimerPhase = "prep" | "work" | "rest";
@@ -21,4 +22,5 @@ export interface TimerStatus {
   currentInterval: number;
   totalIntervals: number;
   timeRemaining: number;
+  resumeCountdown?: number;
 }

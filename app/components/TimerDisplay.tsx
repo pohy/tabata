@@ -8,6 +8,12 @@ interface TimerDisplayProps {
 
 export function TimerDisplay({ status, config }: TimerDisplayProps) {
   const getPhaseLabel = () => {
+    if (status.state === "resuming" && status.resumeCountdown) {
+      return `Resuming in ${status.resumeCountdown}`;
+    }
+    if (status.state === "paused") {
+      return "PAUSED";
+    }
     switch (status.phase) {
       case "prep":
         return "GET READY";
@@ -47,7 +53,7 @@ export function TimerDisplay({ status, config }: TimerDisplayProps) {
     <div className="flex flex-col items-center justify-center space-y-8">
       {/* Phase Label */}
       <div className="text-5xl font-bold tracking-wide">
-        {status.state === "paused" ? "PAUSED" : getPhaseLabel()}
+        {getPhaseLabel()}
       </div>
 
       {/* Circular Progress with Timer */}
