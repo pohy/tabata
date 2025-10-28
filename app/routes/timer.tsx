@@ -79,7 +79,7 @@ export default function Timer() {
   // Auto-start the timer when component mounts
   useEffect(() => {
     start();
-  }, []);
+  }, [start]);
 
   const handleStop = () => {
     stop();

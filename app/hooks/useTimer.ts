@@ -36,19 +36,22 @@ export function useTimer(config: TimerConfig, options?: UseTimerOptions) {
   const lastTimeRemainingRef = useRef<number>(0);
 
   const start = useCallback(() => {
-    if (status.state === "idle") {
-      setStatus((prev) => ({
-        ...prev,
-        state: "preparing",
-        phase: "prep",
-        currentInterval: 0,
-        timeRemaining: config.prepTimeS,
-      }));
-      startTimeRef.current = performance.now();
-      phaseStartTimeRef.current = 0;
-      phaseDurationRef.current = config.prepTimeS * 1000;
-    }
-  }, [status.state, config.prepTimeS]);
+    setStatus((prev) => {
+      if (prev.state === "idle") {
+        startTimeRef.current = performance.now();
+        phaseStartTimeRef.current = 0;
+        phaseDurationRef.current = config.prepTimeS * 1000;
+        return {
+          ...prev,
+          state: "preparing",
+          phase: "prep",
+          currentInterval: 0,
+          timeRemaining: config.prepTimeS,
+        };
+      }
+      return prev;
+    });
+  }, [config.prepTimeS]);
 
   const pause = useCallback(() => {
     if (
