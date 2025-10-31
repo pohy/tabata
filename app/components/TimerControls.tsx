@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { TimerState } from "../types/timer";
 import {
   AlertDialog,
@@ -27,6 +28,23 @@ export function TimerControls({
   onStop,
   onSkip,
 }: TimerControlsProps) {
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      return;
+    }
+
+    // Dialog opening - pause if timer is active
+    if (
+      timerState === "working" ||
+      timerState === "resting" ||
+      timerState === "preparing"
+    ) {
+      onPause();
+    } else if (timerState === "paused") {
+      onResume();
+    }
+  };
+
   return (
     <div className="flex gap-4 mt-12">
       {(timerState === "working" ||
@@ -50,7 +68,7 @@ export function TimerControls({
         </Button>
       )}
 
-      <AlertDialog>
+      <AlertDialog onOpenChange={handleDialogOpenChange}>
         <AlertDialogTrigger asChild>
           <Button variant="destructive" size="lg">
             Stop
